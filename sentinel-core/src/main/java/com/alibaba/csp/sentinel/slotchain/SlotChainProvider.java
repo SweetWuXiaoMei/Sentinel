@@ -40,7 +40,7 @@ public final class SlotChainProvider {
             return slotChainBuilder.build();
         }
 
-        // Resolve the slot chain builder SPI.
+        // Resolve the slot chain builder SPI. 通过spi的方式找到ChainBuilder，如果没有则使用DefaultSlotChainBuilder，一般情况下也都是使用DefaultSlotChainBuilder
         slotChainBuilder = SpiLoader.loadFirstInstanceOrDefault(SlotChainBuilder.class, DefaultSlotChainBuilder.class);
 
         if (slotChainBuilder == null) {

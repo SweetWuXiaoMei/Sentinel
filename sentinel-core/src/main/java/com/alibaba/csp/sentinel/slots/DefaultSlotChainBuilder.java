@@ -33,6 +33,17 @@ import java.util.List;
  */
 public class DefaultSlotChainBuilder implements SlotChainBuilder {
 
+    /**
+     * com.alibaba.csp.sentinel.slots.nodeselector.NodeSelectorSlot
+     * com.alibaba.csp.sentinel.slots.clusterbuilder.ClusterBuilderSlot
+     * com.alibaba.csp.sentinel.slots.logger.LogSlot
+     * com.alibaba.csp.sentinel.slots.statistic.StatisticSlot
+     * com.alibaba.csp.sentinel.slots.system.SystemSlot
+     * com.alibaba.csp.sentinel.slots.block.authority.AuthoritySlot
+     * com.alibaba.csp.sentinel.slots.block.flow.FlowSlot
+     * com.alibaba.csp.sentinel.slots.block.degrade.DegradeSlot
+     * 从上到下依次将构成链条
+     */
     @Override
     public ProcessorSlotChain build() {
         ProcessorSlotChain chain = new DefaultProcessorSlotChain();
@@ -45,6 +56,7 @@ public class DefaultSlotChainBuilder implements SlotChainBuilder {
                 continue;
             }
 
+            // 把列表中一个个的元素构建成链表
             chain.addLast((AbstractLinkedProcessorSlot<?>) slot);
         }
 

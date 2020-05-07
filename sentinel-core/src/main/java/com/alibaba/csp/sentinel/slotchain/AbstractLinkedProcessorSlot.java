@@ -25,6 +25,9 @@ public abstract class AbstractLinkedProcessorSlot<T> implements ProcessorSlot<T>
 
     private AbstractLinkedProcessorSlot<?> next = null;
 
+    /**
+     * 继续走下一个entry
+     */
     @Override
     public void fireEntry(Context context, ResourceWrapper resourceWrapper, Object obj, int count, boolean prioritized, Object... args)
         throws Throwable {
@@ -33,6 +36,9 @@ public abstract class AbstractLinkedProcessorSlot<T> implements ProcessorSlot<T>
         }
     }
 
+    /**
+     * 走下一个entry的逻辑
+     */
     @SuppressWarnings("unchecked")
     void transformEntry(Context context, ResourceWrapper resourceWrapper, Object o, int count, boolean prioritized, Object... args)
         throws Throwable {

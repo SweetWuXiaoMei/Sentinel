@@ -48,6 +48,12 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
  * @author jialiang.linjl
  * @author Eric Zhao
  */
+
+/**
+ * 用来存储资源的统计信息和调用者信息，例如该资源的rt，qps，thread，count等等
+ * 这些信息用于限流，降级的依据(fireEntry用来触发下一个规则的调用)
+ */
+// @SpiOrder用于将slot排序
 @SpiOrder(-7000)
 public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
 
@@ -59,7 +65,9 @@ public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
             fireEntry(context, resourceWrapper, node, count, prioritized, args);
 
             // Request passed, add thread count and pass count.
+            // 增加当前的线程数
             node.increaseThreadNum();
+            // 增加当前的线程数
             node.addPassRequest(count);
 
             if (context.getCurEntry().getOriginNode() != null) {

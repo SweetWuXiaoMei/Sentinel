@@ -249,6 +249,9 @@ public final class SpiLoader {
     }
 
     private static class SpiOrderResolver {
+
+        // list是保持有序的，将新获取的chain，当前要插入的chain从左边往右边找，
+        // 一直找到第一个小于它的排序的chain，并通过set(index,element)的api 插入进去
         private static <T> void insertSorted(List<SpiOrderWrapper<T>> list, T spi, int order) {
             int idx = 0;
             for (; idx < list.size(); idx++) {
@@ -256,9 +259,13 @@ public final class SpiLoader {
                     break;
                 }
             }
+            // set(index,element)这个api会将值插入进去，并将list中后面的值往后移动
             list.add(idx, new SpiOrderWrapper<>(order, spi));
         }
 
+        /**
+         * 从此处可以看出，是要给chain排序，决定他的书序
+         */
         private static <T> int resolveOrder(T spi) {
             if (!spi.getClass().isAnnotationPresent(SpiOrder.class)) {
                 // Lowest precedence by default.

@@ -28,7 +28,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import java.lang.reflect.Method;
 
 /**
- * Aspect for methods with {@link SentinelResource} annotation.
+ * Aspect for methods with {@link SentinelResource} annotation. 拦截SentinelResource注解，获取注解上的值并设置规则
  *
  * @author Eric Zhao
  */
@@ -48,17 +48,23 @@ public class SentinelResourceAspect extends AbstractSentinelAspectSupport {
             // Should not go through here.
             throw new IllegalStateException("Wrong state for SentinelResource annotation");
         }
+        // 获取resource的名称
         String resourceName = getResourceName(annotation.value(), originMethod);
+        // 获取entryType
         EntryType entryType = annotation.entryType();
+        // 获取resource的类型
         int resourceType = annotation.resourceType();
         Entry entry = null;
         try {
+            // 申请一个entry，如果申请成功，则没有被限流，否则会抛出BlockException，表示已经限流了
             entry = SphU.entry(resourceName, resourceType, entryType, pjp.getArgs());
             Object result = pjp.proceed();
             return result;
         } catch (BlockException ex) {
+            // 当限流时会抛出BlockException，处理注解属性blockHandler方法
             return handleBlockException(pjp, annotation, ex);
         } catch (Throwable ex) {
+            // 当抛出业务异常时，处理注解属性fallback方法
             Class<? extends Throwable>[] exceptionsToIgnore = annotation.exceptionsToIgnore();
             // The ignore list will be checked first.
             if (exceptionsToIgnore.length > 0 && exceptionBelongsTo(ex, exceptionsToIgnore)) {

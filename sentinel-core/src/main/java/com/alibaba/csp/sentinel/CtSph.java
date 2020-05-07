@@ -133,6 +133,7 @@ public class CtSph implements Sph {
             return new CtEntry(resourceWrapper, null, context);
         }
 
+        // 找到处理限流的责任链，每一个功能都在链中类中，比如统计功能，限流方法
         ProcessorSlot<Object> chain = lookProcessChain(resourceWrapper);
 
         /*
@@ -192,6 +193,7 @@ public class CtSph implements Sph {
      * @return {@link ProcessorSlotChain} of the resource
      */
     ProcessorSlot<Object> lookProcessChain(ResourceWrapper resourceWrapper) {
+        // 使用double check加入元素
         ProcessorSlotChain chain = chainMap.get(resourceWrapper);
         if (chain == null) {
             synchronized (LOCK) {
@@ -203,6 +205,7 @@ public class CtSph implements Sph {
                     }
 
                     chain = SlotChainProvider.newSlotChain();
+                    // 将每一个需要限流的方法添加一个链条，并加入到map中
                     Map<ResourceWrapper, ProcessorSlotChain> newMap = new HashMap<ResourceWrapper, ProcessorSlotChain>(
                         chainMap.size() + 1);
                     newMap.putAll(chainMap);

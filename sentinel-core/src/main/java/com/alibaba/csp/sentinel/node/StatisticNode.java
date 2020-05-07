@@ -244,6 +244,7 @@ public class StatisticNode implements Node {
 
     @Override
     public void addPassRequest(int count) {
+        // 滑动窗口算法
         rollingCounterInSecond.addPass(count);
         rollingCounterInMinute.addPass(count);
     }
@@ -259,12 +260,14 @@ public class StatisticNode implements Node {
 
     @Override
     public void increaseBlockQps(int count) {
+        // 增加被限流的次数
         rollingCounterInSecond.addBlock(count);
         rollingCounterInMinute.addBlock(count);
     }
 
     @Override
     public void increaseExceptionQps(int count) {
+        // 增加抛出非限流block异常调用数
         rollingCounterInSecond.addException(count);
         rollingCounterInMinute.addException(count);
     }

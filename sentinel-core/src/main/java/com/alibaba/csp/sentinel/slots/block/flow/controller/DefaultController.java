@@ -72,6 +72,7 @@ public class DefaultController implements TrafficShapingController {
         if (node == null) {
             return DEFAULT_AVG_USED_TOKENS;
         }
+        // 获取StatisticSlot统计的值
         return grade == RuleConstant.FLOW_GRADE_THREAD ? node.curThreadNum() : (int)(node.passQps());
     }
 

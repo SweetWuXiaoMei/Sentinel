@@ -111,13 +111,19 @@ public abstract class LeapArray<T> {
      * @param timeMillis a valid timestamp in milliseconds
      * @return current bucket item at provided timestamp if the time is valid; null if time is invalid
      */
+    /**
+     * 使用滑动窗口算法，将当前时间映射到当前窗口
+     * @param timeMillis
+     * @return
+     */
     public WindowWrap<T> currentWindow(long timeMillis) {
         if (timeMillis < 0) {
             return null;
         }
 
+        // 计算当前时间处于哪个时间窗口内
         int idx = calculateTimeIdx(timeMillis);
-        // Calculate current bucket start time.
+        // Calculate current bucket start time. 计算每一格滑动窗口的的起始时间
         long windowStart = calculateWindowStart(timeMillis);
 
         /*
@@ -126,9 +132,12 @@ public abstract class LeapArray<T> {
          * (1) Bucket is absent, then just create a new bucket and CAS update to circular array.
          * (2) Bucket is up-to-date, then just return the bucket.
          * (3) Bucket is deprecated, then reset current bucket and clean all deprecated buckets.
+         *
+         * 注意：考虑一种情况，之前多个时间窗口都被填满了，但是过了一段时间没有流量，然后又来一些请求
          */
         while (true) {
             WindowWrap<T> old = array.get(idx);
+            // 如果获取的窗口不存在，则说明之前没有创建过，现在则创建
             if (old == null) {
                 /*
                  *     B0       B1      B2    NULL      B4
@@ -150,7 +159,7 @@ public abstract class LeapArray<T> {
                     // Contention failed, the thread will yield its time slice to wait for bucket available.
                     Thread.yield();
                 }
-            } else if (windowStart == old.windowStart()) {
+            } else if (windowStart == old.windowStart()) {  // 说明当前的window已经存在，直接返回
                 /*
                  *     B0       B1      B2     B3      B4
                  * ||_______|_______|_______|_______|_______||___
@@ -163,7 +172,7 @@ public abstract class LeapArray<T> {
                  * that means the time is within the bucket, so directly return the bucket.
                  */
                 return old;
-            } else if (windowStart > old.windowStart()) {
+            } else if (windowStart > old.windowStart()) {  // 之前的window已经过期了，需要重新重新设置值
                 /*
                  *   (old)
                  *             B0       B1      B2    NULL      B4

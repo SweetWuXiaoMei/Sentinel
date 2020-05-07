@@ -46,10 +46,12 @@ public class FlowRuleChecker {
         if (ruleProvider == null || resource == null) {
             return;
         }
+        // 找出所有的规则，并挨个检查
         Collection<FlowRule> rules = ruleProvider.apply(resource.getName());
         if (rules != null) {
             for (FlowRule rule : rules) {
                 if (!canPassCheck(rule, context, node, count, prioritized)) {
+                    // 继承BlockException，与StatisticSlot相呼应
                     throw new FlowException(rule.getLimitApp(), rule);
                 }
             }
@@ -63,11 +65,13 @@ public class FlowRuleChecker {
 
     public boolean canPassCheck(/*@NonNull*/ FlowRule rule, Context context, DefaultNode node, int acquireCount,
                                                     boolean prioritized) {
+        // 找到限制的应用
         String limitApp = rule.getLimitApp();
         if (limitApp == null) {
             return true;
         }
 
+        // cluster模式现在还不成熟
         if (rule.isClusterMode()) {
             return passClusterCheck(rule, context, node, acquireCount, prioritized);
         }
@@ -82,6 +86,7 @@ public class FlowRuleChecker {
             return true;
         }
 
+        // 判断是否通过
         return rule.getRater().canPass(selectedNode, acquireCount, prioritized);
     }
 
